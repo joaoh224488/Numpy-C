@@ -14,9 +14,10 @@
 
 // Criação de matrizes
 Matrix create_matrix(int *data, int n_rows, int n_cols){
-
+    // Inicialização da matriz
     Matrix mat;
 
+    // Inicializando o 'construtor' da struct
     mat.data = data;
     mat.n_rows = n_rows;
     mat.n_cols = n_cols;
@@ -27,118 +28,77 @@ Matrix create_matrix(int *data, int n_rows, int n_cols){
     return mat;
 }
 
-
-Matrix full_matrix(int n_rows, int n_cols, int value){
-    // Inicialização da matriz
-    Matrix full_mat;
-
-    // Criando a lista de Dados
-
-    int *list_values;
-    int n_elem = n_cols * n_rows;
-    list_values = malloc(sizeof(int) * n_elem);
-
-    // Evitando problemas com a alocação dinâmica
-
-    if (list_values == NULL){
-        printf("full_matrix has failed. Refactor you code and try again.\n");
-        exit(1);
-    }
-
-    for (int i = 0; i < n_elem; i++){
-        list_values[i] = value;
-    }
-
-    // Caracterizando a matriz
-
-    full_mat = create_matrix(list_values, n_rows, n_cols);
-
-    //free(list_values);
-
-    return full_mat;
-}
-
 Matrix zeros_matrix(int n_rows, int n_cols){
 
     return full_matrix(n_rows, n_cols, 0);
 } 
 
-Matrix i_matrix (int n){
+Matrix full_matrix(int n_rows, int n_cols, int value){
+    // Inicialização da matriz
+    Matrix full_mat;
 
+    // Criando a lista de dados
+    int *list_values;
+    int n_elem = n_cols * n_rows;
+    list_values = malloc(sizeof(int) * n_elem);
+
+    for (int i = 0; i < n_elem; i++){
+        list_values[i] = value;
+    }
+
+    // Gerando a matriz
+    full_mat = create_matrix(list_values, n_rows, n_cols);
+
+    return full_mat;
+}
+
+Matrix i_matrix (int n){
     // Inicialização da matriz
     Matrix i_mat;
 
-    // Criando a lista de Dados
-
+    // Criando a lista de dados
     int *list_values;
     int n_elem = n * n;
     list_values = malloc(sizeof(int) * n_elem);
 
-    // Evitando problemas com a alocação dinâmica
-
-    if (list_values == NULL){
-        printf("full_matrix has failed. Refactor you code and try again.\n");
-        exit(1);
-    }
-
     for (int i = 0; i < n_elem; i++){
         if (i % (n + 1) == 0){
-            list_values[i] = 1;             // Elementos da diagonal principal
+            // Elementos da diagonal principal
+            list_values[i] = 1;
         }
         else{
             list_values[i] = 0;
         }
     }
-
+    // Gerando a matriz
     i_mat = create_matrix(list_values, n, n);
 
     return i_mat;
-
 }
 
 Matrix tile_matrix(Matrix matrix, int reps){
+    // Inicialização da matriz
     Matrix tile;
 
     int *elements;
     int n_elem = matrix.n_rows * matrix.n_cols;
-    elements = malloc(sizeof(int) * n_elem*reps);
+    elements = malloc(sizeof(int) * n_elem * reps);
 
-    /*
-    int line = 0;
     int j = 0;
+    int k = 0;
+    int line = 1;
     for(int i = 0; i < n_elem * reps; i++){
-        if(line < matrix.n_cols){
-            elements[i] = matrix.data[j];
-            j++;
-            if(j == matrix.n_cols){
-                j = 0;
-            }
+        elements[i] = matrix.data[j];
+        j++;
+        if(j % matrix.n_cols == 0){
+            j = k;
+        }
+        if(line % (matrix.n_rows+1) == 0){
+            k += matrix.n_cols;
+            j = k;
         }
         line++;
-    }
-    */
 
-    int j = 0;
-    for(int i = 0; i < matrix.n_cols * reps; i++){
-        if (j < matrix.n_cols){
-            elements[i] = matrix.data[j];
-            j++;
-            if(j == matrix.n_cols){
-                j = 0;
-            }
-        }
-
-    }
-
-    int k = matrix.n_cols;
-    for(int i = matrix.n_cols * reps; i < (matrix.n_cols * reps * 2); i++){
-        if(k < n_elem){
-            elements[i] = matrix.data[k];
-            k++;
-            if(k == n_elem){
-                k = matrix.n_cols;
-            }
-        }
     }
 
     tile = create_matrix(elements, matrix.n_rows, matrix.n_cols*reps);
@@ -146,8 +106,35 @@ Matrix tile_matrix(Matrix matrix, int reps){
     return tile;
 }
 
-// Manipulação de dimensões
+/*Matrix tile_matrix(Matrix matrix, int reps){
+    Matrix tile;
 
+    int *elements;
+    int n_elem = matrix.n_rows * matrix.n_cols;
+    elements = malloc(sizeof(int) * n_elem*reps);
+
+    int j = 0;
+    int k = 0;
+    int line = 1;
+    for(int i = 0; i < n_elem * reps; i++){
+        elements[i] = matrix.data[j];
+        j++;
+        if(j % matrix.n_cols == 0){
+            j = k;
+        }
+        if(i+1 == (n_elem) * line){
+            k += matrix.n_cols;
+            j = k;
+            line+=1;
+        }
+    }
+
+    tile = create_matrix(elements, matrix.n_rows, matrix.n_cols*reps);
+
+    return tile;
+}*/
+
+// Manipulação de dimensões
 Matrix transpose(Matrix matrix){
 
     Matrix transp = matrix; // Cópia da struct
@@ -168,23 +155,119 @@ Matrix reshape(Matrix matrix, int new_n_rows, int new_n_cols){
     int orig_q = matrix.n_rows * matrix.n_cols;
     int new_q = new_n_rows * new_n_cols;
 
-    if (orig_q != new_q){
-        printf("Number of elements doesn't match. Impossible to reshape.\n");
+    if(orig_q == new_q){
+        Matrix re_mat = matrix;
+
+        re_mat.n_rows = new_n_rows;
+        re_mat.n_cols = new_n_cols;
+        re_mat.stride_rows = new_n_cols;
+
+        return re_mat;
     }
-    else{
+}
 
-    Matrix re_mat = matrix;
+// OPERAÇÕES ARITMÉTICAS
+Matrix add(Matrix matrix_1, Matrix matrix_2){
+    // Verificando se matrizes têm as mesmas dimensões
+    if(matrix_1.n_rows == matrix_2.n_rows && matrix_1.n_cols == matrix_2.n_cols){
+        // Inicialização da matriz
+        Matrix sum;
+        // Criando a lista de dados
+        int *elements;
+        int n_elem = matrix_1.n_rows * matrix_1.n_cols;
+        elements = malloc(sizeof(int) * n_elem);
+        // Preenchendo o array unidimensional de saída com base
+        // na soma dos elementos de mesmo índice pertencente à cada matriz
+        for(int i = 0; i < matrix_1.n_rows * matrix_1.n_cols; i++){
+            elements[i] = matrix_1.data[i] + matrix_2.data[i];
+        }
+        // Gerando a matriz
+        sum = create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
 
-    re_mat.n_rows = new_n_rows;
-    re_mat.n_cols = new_n_cols;
-    re_mat.stride_rows = new_n_cols;
+        return sum;
+    }
+}
 
-    return re_mat;
+Matrix sub(Matrix matrix_1, Matrix matrix_2){
+    // Verificando se matrizes têm as mesmas dimensões
+    if(matrix_1.n_rows == matrix_2.n_rows && matrix_1.n_cols == matrix_2.n_cols){
+        // Inicialização da matriz
+        Matrix subtraction;
+        // Criando a lista de dados
+        int *elements;
+        int n_elem = matrix_1.n_rows * matrix_1.n_cols;
+        elements = malloc(sizeof(int) * n_elem);
+        // Preenchendo o array unidimensional de saída com base
+        // na subtração dos elementos de mesmo índice pertencente à cada matriz
+        for(int i = 0; i < matrix_1.n_rows * matrix_1.n_cols; i++){
+            elements[i] = matrix_1.data[i] - matrix_2.data[i];
+        }
+        // Gerando a matriz
+        subtraction = create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
+
+        return subtraction;
+    }
+}
+
+Matrix division(Matrix matrix_1, Matrix matrix_2){
+    // Verificando se matrizes têm as mesmas dimensões
+    if(matrix_1.n_rows == matrix_2.n_rows && matrix_1.n_cols == matrix_2.n_cols){
+        // Inicialização da matriz
+        Matrix div;
+        // Criando a lista de dados
+        int *elements;
+        int n_elem = matrix_1.n_rows * matrix_1.n_cols;
+        elements = malloc(sizeof(int) * n_elem);
+        // Preenchendo o array unidimensional de saída com base
+        // na divisão dos elementos de mesmo índice pertencente à cada matriz
+        for(int i = 0; i < matrix_1.n_rows * matrix_1.n_cols; i++){
+/*
+    Casos especiais da divisão: 
+        1º - denominador 0, resultado 'inf' (usaremos -666 representar),
+        2º - numerador e denominador 0, resultado 'nan' (usaremos -777 para representar)
+*/
+            if(matrix_2.data[i] == 0){
+                if(matrix_1.data[i] == 0){
+                    elements[i] = -777;
+                }
+                else{
+                    elements[i] = -666;
+                }
+            }
+            else{
+                elements[i] = matrix_1.data[i] / matrix_2.data[i];
+            }
+            
+        }
+        // Gerando a matriz
+        div = create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
+
+        return div;
+    }
+}
+
+Matrix mul(Matrix matrix_1, Matrix matrix_2){
+    // Verificando se matrizes têm as mesmas dimensões
+    if(matrix_1.n_rows == matrix_2.n_rows && matrix_1.n_cols == matrix_2.n_cols){
+        // Inicialização da matriz
+        Matrix multiplication;
+        // Criando a lista de dados
+        int *elements;
+        int n_elem = matrix_1.n_rows * matrix_1.n_cols;
+        elements = malloc(sizeof(int) * n_elem);
+        // Preenchendo o array unidimensional de saída com base
+        // na multiplicação dos elementos de mesmo índice pertencente à cada matriz
+        for(int i = 0; i < matrix_1.n_rows * matrix_1.n_cols; i++){
+            elements[i] = matrix_1.data[i] * matrix_2.data[i];
+        }
+        // Gerando a matriz
+        multiplication = create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
+
+        return multiplication;
     }
 }
 
 // Acessar elementos
-
 void print_matrix(Matrix matrix){
 
     int n_elem = matrix.n_cols * matrix.n_rows;
@@ -198,20 +281,4 @@ void print_matrix(Matrix matrix){
     }
     putchar('\n');
     putchar('\n');
-}
-
-Matrix zeros_matrix(int n_rows, int n_cols){
-    Matrix zeros;
-
-    int *full_zeros;
-    int n_elem = n_rows * n_cols;
-    full_zeros = malloc(sizeof(int) * n_elem);
-
-    for(int i = 0; i < n_elem; i++){
-        full_zeros[i] = 0;
-    }
-
-    zeros = create_matrix(full_zeros, n_rows, n_cols);
-
-    return zeros;
 }
