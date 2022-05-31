@@ -8,11 +8,11 @@
 #include <stdlib.h>
 #include "matrix.h"
 
-#define pattern_stride_cols 1 // Pulará um por padrão
-#define pattern_offset 0      // Consideraremos o array do início por padrão
+#define default_stride_cols 1 // Pulará um por padrão
+#define default_offset 0      // Consideraremos o array do início por padrão
 
 
-// Criação de matrizes
+// CRIAÇÃO DE MATRIZES
 Matrix create_matrix(int *data, int n_rows, int n_cols){
     // Inicialização da matriz
     Matrix mat;
@@ -22,8 +22,8 @@ Matrix create_matrix(int *data, int n_rows, int n_cols){
     mat.n_rows = n_rows;
     mat.n_cols = n_cols;
     mat.stride_rows = n_cols;
-    mat.stride_cols = pattern_stride_cols;
-    mat.offset = pattern_offset;
+    mat.stride_cols = default_stride_cols;
+    mat.offset = default_offset;
 
     return mat;
 }
@@ -70,6 +70,7 @@ Matrix i_matrix (int n){
             list_values[i] = 0;
         }
     }
+
     // Gerando a matriz
     i_mat = create_matrix(list_values, n, n);
 
@@ -134,7 +135,7 @@ Matrix tile_matrix(Matrix matrix, int reps){
     return tile;
 }*/
 
-// Manipulação de dimensões
+// MANIPULAÇÃO DE DIMENSÕES
 Matrix transpose(Matrix matrix){
 
     Matrix transp = matrix; // Cópia da struct
@@ -177,10 +178,11 @@ Matrix add(Matrix matrix_1, Matrix matrix_2){
         int n_elem = matrix_1.n_rows * matrix_1.n_cols;
         elements = malloc(sizeof(int) * n_elem);
         // Preenchendo o array unidimensional de saída com base
-        // na soma dos elementos de mesmo índice pertencente à cada matriz
+        // na soma dos elementos de mesmo índice pertencentes à cada matriz
         for(int i = 0; i < matrix_1.n_rows * matrix_1.n_cols; i++){
             elements[i] = matrix_1.data[i] + matrix_2.data[i];
         }
+
         // Gerando a matriz
         sum = create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
 
@@ -198,10 +200,11 @@ Matrix sub(Matrix matrix_1, Matrix matrix_2){
         int n_elem = matrix_1.n_rows * matrix_1.n_cols;
         elements = malloc(sizeof(int) * n_elem);
         // Preenchendo o array unidimensional de saída com base
-        // na subtração dos elementos de mesmo índice pertencente à cada matriz
+        // na subtração dos elementos de mesmo índice pertencentes à cada matriz
         for(int i = 0; i < matrix_1.n_rows * matrix_1.n_cols; i++){
             elements[i] = matrix_1.data[i] - matrix_2.data[i];
         }
+
         // Gerando a matriz
         subtraction = create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
 
@@ -219,7 +222,7 @@ Matrix division(Matrix matrix_1, Matrix matrix_2){
         int n_elem = matrix_1.n_rows * matrix_1.n_cols;
         elements = malloc(sizeof(int) * n_elem);
         // Preenchendo o array unidimensional de saída com base
-        // na divisão dos elementos de mesmo índice pertencente à cada matriz
+        // na divisão dos elementos de mesmo índice pertencentes à cada matriz
         for(int i = 0; i < matrix_1.n_rows * matrix_1.n_cols; i++){
 /*
     Casos especiais da divisão: 
@@ -239,6 +242,7 @@ Matrix division(Matrix matrix_1, Matrix matrix_2){
             }
             
         }
+
         // Gerando a matriz
         div = create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
 
@@ -256,10 +260,11 @@ Matrix mul(Matrix matrix_1, Matrix matrix_2){
         int n_elem = matrix_1.n_rows * matrix_1.n_cols;
         elements = malloc(sizeof(int) * n_elem);
         // Preenchendo o array unidimensional de saída com base
-        // na multiplicação dos elementos de mesmo índice pertencente à cada matriz
+        // na multiplicação dos elementos de mesmo índice pertencentes à cada matriz
         for(int i = 0; i < matrix_1.n_rows * matrix_1.n_cols; i++){
             elements[i] = matrix_1.data[i] * matrix_2.data[i];
         }
+
         // Gerando a matriz
         multiplication = create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
 
@@ -281,4 +286,53 @@ void print_matrix(Matrix matrix){
     }
     putchar('\n');
     putchar('\n');
+}
+
+// FUNÇÕES DE AGREGAÇÃO
+int min(Matrix matrix){
+    int minor = matrix.data[0];
+
+    for(int i = 1; i < matrix.n_rows * matrix.n_cols; i++){
+        if(matrix.data[i] < minor){
+            minor = matrix.data[i];
+        }
+    }
+
+    return minor;
+}
+
+int max(Matrix matrix){
+    int major = matrix.data[0];
+
+    for(int i = 1; i < matrix.n_rows * matrix.n_cols; i++){
+        if(matrix.data[i] > major){
+            major = matrix.data[i];
+        }
+    }
+
+    return major;
+}
+
+int argmin(Matrix matrix){
+    int minor_index = 0;
+
+    for(int i = 0; i < matrix.n_rows * matrix.n_cols; i++){
+        if(matrix.data[i] == min(matrix)){
+            minor_index = i;
+        }
+    }
+
+    return minor_index;
+}
+
+int argmax(Matrix matrix){
+    int major_index = 0;
+
+    for(int i = 0; i < matrix.n_rows * matrix.n_cols; i++){
+        if(matrix.data[i] == max(matrix)){
+            major_index = i;
+        }
+    }
+
+    return major_index;
 }
