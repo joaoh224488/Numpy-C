@@ -272,7 +272,33 @@ Matrix mul(Matrix matrix_1, Matrix matrix_2){
     }
 }
 
-// Acessar elementos
+// ACESSANDO ELEMENTOS
+int get_element(Matrix matrix, int ri, int ci){
+    if(ri < matrix.n_rows && ci < matrix.n_cols){
+        int element = matrix.data[(ri * matrix.n_cols + ci)];
+
+        return element;
+    }
+
+    else{
+        // Caso os índices de linha e/ou coluna ultrapassem os índices da matriz original,
+        // será retornado -999999 para representar o erro 'IndexError'.
+        return -999999;
+    }
+}
+
+void put_element(Matrix matrix, int ri, int ci, int elem){
+    if(ri < matrix.n_rows && ci < matrix.n_cols){
+        matrix.data[(ri * matrix.n_cols + ci)] = elem;
+    }
+
+    else{
+        // Caso os índices de linha e/ou coluna ultrapassem os índices da matriz original,
+        // será retornado uma mensagem de erro.
+        printf("\033[0;31mIndex Error: you are trying to put a value into axis that does not exist in this matrix!!!\033[0m\n");
+    }
+}
+
 void print_matrix(Matrix matrix){
 
     int n_elem = matrix.n_cols * matrix.n_rows;
