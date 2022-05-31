@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include "matrix.h"
 
-#define default_stride_cols 1 // Pulará um por padrão
-#define default_offset 0      // Consideraremos o array do início por padrão
+#define default_stride_cols 1 // Por padrão, pulará uma coluna 
+#define default_offset 0      // Por padrão, consideraremos o array do início
 
 
 // CRIAÇÃO DE MATRIZES
