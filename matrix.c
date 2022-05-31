@@ -8,8 +8,9 @@
 #include <stdlib.h>
 #include "matrix.h"
 
-#define default_stride_cols 1 // Por padrão, pulará uma coluna 
-#define default_offset 0      // Por padrão, consideraremos o array do início
+#define DEFAULT_STRIDE_COLS 1 // Por padrão, pulará uma coluna 
+#define DEFAULT_OFFSET 0      // Por padrão, consideraremos o array do início
+#define N_ELEM matrix.n_rows * matrix.n_cols
 
 
 // CRIAÇÃO DE MATRIZES
@@ -22,8 +23,8 @@ Matrix create_matrix(int *data, int n_rows, int n_cols){
     mat.n_rows = n_rows;
     mat.n_cols = n_cols;
     mat.stride_rows = n_cols;
-    mat.stride_cols = default_stride_cols;
-    mat.offset = default_offset;
+    mat.stride_cols = DEFAULT_STRIDE_COLS;
+    mat.offset = DEFAULT_OFFSET;
 
     return mat;
 }
@@ -82,13 +83,12 @@ Matrix tile_matrix(Matrix matrix, int reps){
     Matrix tile;
 
     int *elements;
-    int n_elem = matrix.n_rows * matrix.n_cols;
-    elements = malloc(sizeof(int) * n_elem * reps);
+    elements = malloc(sizeof(int) * N_ELEM * reps);
 
     int j = 0;
     int k = 0;
     int line = 1;
-    for(int i = 0; i < n_elem * reps; i++){
+    for(int i = 0; i < N_ELEM * reps; i++){
         elements[i] = matrix.data[j];
         j++;
         if(j % matrix.n_cols == 0){
@@ -137,23 +137,44 @@ Matrix tile_matrix(Matrix matrix, int reps){
 
 // MANIPULAÇÃO DE DIMENSÕES
 Matrix transpose(Matrix matrix){
+    // Inicialização da matriz
+    Matrix transp;
+    // Criando a lista de dados
+    int *elements;
+    elements = malloc(sizeof(int) * N_ELEM);
 
-    Matrix transp = matrix; // Cópia da struct
+    elements[0] = matrix.data[0];
+    int col = 1, line = 1;
+    int pos = 0;
+    int j = 0;
 
-    transp.n_rows = matrix.n_cols;
+    
 
-    transp.n_cols = matrix.n_rows;
+    for(int i = 1; i < N_ELEM; i++){
+        if(matrix.n_rows == matrix.n_cols){
+            pos = line*matrix.n_rows;
+        }
+        else{
+            pos = line*matrix.n_cols;
+        }
 
-    transp.stride_rows = matrix.n_rows; // Trocando o número de linhas pelo de colunas,
-                                        // o valor do "pulo" será alterado para o de 
-                                        // linhas da matriz original.
+        elements[i] = matrix.data[j+col*pos];
+        line++;
+        if(line == matrix.n_rows){
+            line = 0;
+            j+=1;
+        }
+    }
+
+    transp = create_matrix(elements, matrix.n_cols, matrix.n_rows);
+
     return transp;
 }
 
 
 Matrix reshape(Matrix matrix, int new_n_rows, int new_n_cols){
 
-    int orig_q = matrix.n_rows * matrix.n_cols;
+    int orig_q = N_ELEM;
     int new_q = new_n_rows * new_n_cols;
 
     if(orig_q == new_q){
@@ -164,6 +185,11 @@ Matrix reshape(Matrix matrix, int new_n_rows, int new_n_cols){
         re_mat.stride_rows = new_n_cols;
 
         return re_mat;
+    }
+
+    else{
+        printf("\033[0;31mValue Error\033[96m: cannot reshape array of size %d into shape (%d,%d)\033[0m\n", orig_q, new_n_rows, new_n_cols);
+        return matrix;
     }
 }
 
@@ -282,7 +308,8 @@ int get_element(Matrix matrix, int ri, int ci){
 
     else{
         // Caso os índices de linha e/ou coluna ultrapassem os índices da matriz original,
-        // será retornado -999999 para representar o erro 'IndexError'.
+        // será retornado -999999 para representar o erro 'Index Error'.
+        printf("\033[0;31mIndex Error\033[96m: index is out of bounds\033[0m\n");
         return -999999;
     }
 }
@@ -295,15 +322,13 @@ void put_element(Matrix matrix, int ri, int ci, int elem){
     else{
         // Caso os índices de linha e/ou coluna ultrapassem os índices da matriz original,
         // será retornado uma mensagem de erro.
-        printf("\033[0;31mIndex Error: you are trying to put a value into axis that does not exist in this matrix!!!\033[0m\n");
+        printf("\033[0;31mIndex Error\033[96m: index is out of bounds\033[0m\n");
     }
 }
 
 void print_matrix(Matrix matrix){
 
-    int n_elem = matrix.n_cols * matrix.n_rows;
-
-    for (int i = matrix.offset; i < n_elem; i++){
+    for (int i = matrix.offset; i < N_ELEM; i++){
 
         if (i % matrix.stride_rows == 0 && i != matrix.offset)
             putchar('\n');
@@ -318,7 +343,7 @@ void print_matrix(Matrix matrix){
 int min(Matrix matrix){
     int minor = matrix.data[0];
 
-    for(int i = 1; i < matrix.n_rows * matrix.n_cols; i++){
+    for(int i = 1; i < N_ELEM; i++){
         if(matrix.data[i] < minor){
             minor = matrix.data[i];
         }
@@ -330,7 +355,7 @@ int min(Matrix matrix){
 int max(Matrix matrix){
     int major = matrix.data[0];
 
-    for(int i = 1; i < matrix.n_rows * matrix.n_cols; i++){
+    for(int i = 1; i < N_ELEM; i++){
         if(matrix.data[i] > major){
             major = matrix.data[i];
         }
@@ -342,7 +367,7 @@ int max(Matrix matrix){
 int argmin(Matrix matrix){
     int minor_index = 0;
 
-    for(int i = 0; i < matrix.n_rows * matrix.n_cols; i++){
+    for(int i = 0; i < N_ELEM; i++){
         if(matrix.data[i] == min(matrix)){
             minor_index = i;
         }
@@ -354,7 +379,7 @@ int argmin(Matrix matrix){
 int argmax(Matrix matrix){
     int major_index = 0;
 
-    for(int i = 0; i < matrix.n_rows * matrix.n_cols; i++){
+    for(int i = 0; i < N_ELEM; i++){
         if(matrix.data[i] == max(matrix)){
             major_index = i;
         }
