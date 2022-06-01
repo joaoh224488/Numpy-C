@@ -77,63 +77,46 @@ Matrix i_matrix (int n){
 
     return i_mat;
 }
+/*
+2x3     2 3 4           [2,3,4,5,6,7]               => {[2,3,4],[5,6,7]}
+        5 6 7
 
+2x6     2 3 4 2 3 4     [2,3,4,2,3,4,5,6,7,5,6,7]   => {[2,3,4],[2,3,4],[5,6,7],[5,6,7]}
+        5 6 7 5 6 7
+
+*/
 Matrix tile_matrix(Matrix matrix, int reps){
     // Inicialização da matriz
     Matrix tile;
 
+    // Criando a lista de dados
     int *elements;
     elements = malloc(sizeof(int) * N_ELEM * reps);
 
+    // Variáveis de controle para reordenação do array unidimensional de saída
+    int col = 0;
     int j = 0;
-    int k = 0;
-    int line = 1;
+    int stride = 0;
     for(int i = 0; i < N_ELEM * reps; i++){
-        elements[i] = matrix.data[j];
-        j++;
-        if(j % matrix.n_cols == 0){
-            j = k;
-        }
-        if(line % (matrix.n_rows+1) == 0){
-            k += matrix.n_cols;
-            j = k;
-        }
-        line++;
 
+        elements[i] = matrix.data[stride+j];
+        j++;
+        col++;
+        if(j == matrix.n_cols){
+            j=0;
+
+            if(col == matrix.n_cols*reps){
+                col = 0;
+                stride += matrix.n_cols;
+            }
+        }
     }
 
+    // Gerando a matriz
     tile = create_matrix(elements, matrix.n_rows, matrix.n_cols*reps);
 
     return tile;
 }
-
-/*Matrix tile_matrix(Matrix matrix, int reps){
-    Matrix tile;
-
-    int *elements;
-    int n_elem = matrix.n_rows * matrix.n_cols;
-    elements = malloc(sizeof(int) * n_elem*reps);
-
-    int j = 0;
-    int k = 0;
-    int line = 1;
-    for(int i = 0; i < n_elem * reps; i++){
-        elements[i] = matrix.data[j];
-        j++;
-        if(j % matrix.n_cols == 0){
-            j = k;
-        }
-        if(i+1 == (n_elem) * line){
-            k += matrix.n_cols;
-            j = k;
-            line+=1;
-        }
-    }
-
-    tile = create_matrix(elements, matrix.n_rows, matrix.n_cols*reps);
-
-    return tile;
-}*/
 
 // MANIPULAÇÃO DE DIMENSÕES
 Matrix transpose(Matrix matrix){
@@ -144,10 +127,9 @@ Matrix transpose(Matrix matrix){
     elements = malloc(sizeof(int) * N_ELEM);
 
     elements[0] = matrix.data[0];
-    int col = 1, line = 1;
-    int calc = 0;
-    int pos = 0;
-    int j = 0;
+
+    int j = 0, pos = 0, calc = 0;
+    int col = 1, row = 1;
 
     if(matrix.n_rows == matrix.n_cols){
         calc = matrix.n_rows;
@@ -157,15 +139,16 @@ Matrix transpose(Matrix matrix){
     }
 
     for(int i = 1; i < N_ELEM; i++){
-        pos = line*calc;
+        pos = row*calc;
         elements[i] = matrix.data[j+col*pos];
-        line++;
-        if(line == matrix.n_rows){
-            line = 0;
+        row++;
+        if(row == matrix.n_rows){
+            row = 0;
             j+=1;
         }
     }
 
+    // Gerando a matriz
     transp = create_matrix(elements, matrix.n_cols, matrix.n_rows);
 
     return transp;
