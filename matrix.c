@@ -145,19 +145,19 @@ Matrix transpose(Matrix matrix){
 
     elements[0] = matrix.data[0];
     int col = 1, line = 1;
+    int calc = 0;
     int pos = 0;
     int j = 0;
 
-    
+    if(matrix.n_rows == matrix.n_cols){
+        calc = matrix.n_rows;
+    }
+    else{
+        calc = matrix.n_cols;
+    }
 
     for(int i = 1; i < N_ELEM; i++){
-        if(matrix.n_rows == matrix.n_cols){
-            pos = line*matrix.n_rows;
-        }
-        else{
-            pos = line*matrix.n_cols;
-        }
-
+        pos = line*calc;
         elements[i] = matrix.data[j+col*pos];
         line++;
         if(line == matrix.n_rows){
@@ -170,7 +170,6 @@ Matrix transpose(Matrix matrix){
 
     return transp;
 }
-
 
 Matrix reshape(Matrix matrix, int new_n_rows, int new_n_cols){
 
