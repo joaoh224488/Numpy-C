@@ -29,15 +29,7 @@ Matrix create_matrix(int *data, int n_rows, int n_cols){
     return mat;
 }
 
-Matrix zeros_matrix(int n_rows, int n_cols){
-
-    return full_matrix(n_rows, n_cols, 0);
-} 
-
 Matrix full_matrix(int n_rows, int n_cols, int value){
-    // Inicialização da matriz
-    Matrix full_mat;
-    
 
     // Criando a lista de dados
     int *list_values;
@@ -49,14 +41,16 @@ Matrix full_matrix(int n_rows, int n_cols, int value){
     }
 
     // Gerando a matriz
-    full_mat = create_matrix(list_values, n_rows, n_cols);
 
-    return full_mat;
+    return create_matrix(list_values, n_rows, n_cols);
 }
 
+Matrix zeros_matrix(int n_rows, int n_cols){
+
+    return full_matrix(n_rows, n_cols, 0);
+} 
+
 Matrix i_matrix (int n){
-    // Inicialização da matriz
-    Matrix i_mat;
 
     // Criando a lista de dados
     int *list_values;
@@ -74,9 +68,7 @@ Matrix i_matrix (int n){
     }
 
     // Gerando a matriz
-    i_mat = create_matrix(list_values, n, n);
-
-    return i_mat;
+    return create_matrix(list_values, n, n);
 }
 /*
 2x3     2 3 4           [2,3,4,5,6,7]               => {[2,3,4],[5,6,7]}
@@ -87,8 +79,6 @@ Matrix i_matrix (int n){
 
 */
 Matrix tile_matrix(Matrix matrix, int reps){
-    // Inicialização da matriz
-    Matrix tile;
 
     // Criando a lista de dados
     int *elements;
@@ -114,15 +104,12 @@ Matrix tile_matrix(Matrix matrix, int reps){
     }
 
     // Gerando a matriz
-    tile = create_matrix(elements, matrix.n_rows, matrix.n_cols*reps);
+    return create_matrix(elements, matrix.n_rows, matrix.n_cols*reps);
 
-    return tile;
 }
 
 // MANIPULAÇÃO DE DIMENSÕES
 Matrix transpose(Matrix matrix){
-    // Inicialização da matriz
-    Matrix transp;
     // Criando a lista de dados
     int *elements;
     elements = malloc(sizeof(int) * N_ELEM);
@@ -150,9 +137,8 @@ Matrix transpose(Matrix matrix){
     }
 
     // Gerando a matriz
-    transp = create_matrix(elements, matrix.n_cols, matrix.n_rows);
+    return create_matrix(elements, matrix.n_cols, matrix.n_rows);
 
-    return transp;
 }
 
 Matrix reshape(Matrix matrix, int new_n_rows, int new_n_cols){
@@ -176,12 +162,40 @@ Matrix reshape(Matrix matrix, int new_n_rows, int new_n_cols){
     }
 }
 
+Matrix slice(Matrix matrix, int rs, int re, int cs, int ce){
+    if (rs >= 0 && re <= matrix.n_rows && cs >= 0 && ce <= matrix.n_cols)
+    {
+        int row_size, col_size, new_n_elem, *new_data;
+
+        row_size = re - rs;
+
+        col_size = ce - cs;
+
+        new_n_elem = row_size * col_size;
+
+        new_data = malloc(new_n_elem* sizeof(int));
+
+        int new_m_index = 0;
+        int r, c; // Variaveis para controlar a linha e coluna lida a cada iteracao
+        for (r = rs; r < re; r++){
+            for (c = cs; c < ce; c++ ){
+                new_data[new_m_index++] = matrix.data[r * matrix.n_cols + c];
+                }
+            }
+        
+        return create_matrix(new_data, row_size, col_size);
+        }
+        else{
+        printf("\033[0;31mIndex Error: index out of range. \033[96mReturning original Matrix\033[0m\n");
+        return matrix;
+    }
+
+}
+
 // OPERAÇÕES ARITMÉTICAS
 Matrix add(Matrix matrix_1, Matrix matrix_2){
     // Verificando se matrizes têm as mesmas dimensões
     if(matrix_1.n_rows == matrix_2.n_rows && matrix_1.n_cols == matrix_2.n_cols){
-        // Inicialização da matriz
-        Matrix sum;
         // Criando a lista de dados
         int *elements;
         int n_elem = matrix_1.n_rows * matrix_1.n_cols;
@@ -193,17 +207,17 @@ Matrix add(Matrix matrix_1, Matrix matrix_2){
         }
 
         // Gerando a matriz
-        sum = create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
-
-        return sum;
+        return create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
+    }
+    else{
+        printf("\033[0;31mIndex Error: Both matrices should have the same dimensions. \033[96mReturning -9999 Matrix to represent error\033[0m\n");
+        return full_matrix(2, 2, -9999);
     }
 }
 
 Matrix sub(Matrix matrix_1, Matrix matrix_2){
     // Verificando se matrizes têm as mesmas dimensões
     if(matrix_1.n_rows == matrix_2.n_rows && matrix_1.n_cols == matrix_2.n_cols){
-        // Inicialização da matriz
-        Matrix subtraction;
         // Criando a lista de dados
         int *elements;
         int n_elem = matrix_1.n_rows * matrix_1.n_cols;
@@ -215,17 +229,18 @@ Matrix sub(Matrix matrix_1, Matrix matrix_2){
         }
 
         // Gerando a matriz
-        subtraction = create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
+        return create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
 
-        return subtraction;
+    }
+    else{
+        printf("\033[0;31mIndex Error: Both matrices should have the same dimensions. \033[96mReturning -9999 Matrix to represent error\033[0m\n");
+        return full_matrix(2, 2, -9999);
     }
 }
 
 Matrix division(Matrix matrix_1, Matrix matrix_2){
     // Verificando se matrizes têm as mesmas dimensões
     if(matrix_1.n_rows == matrix_2.n_rows && matrix_1.n_cols == matrix_2.n_cols){
-        // Inicialização da matriz
-        Matrix div;
         // Criando a lista de dados
         int *elements;
         int n_elem = matrix_1.n_rows * matrix_1.n_cols;
@@ -253,17 +268,17 @@ Matrix division(Matrix matrix_1, Matrix matrix_2){
         }
 
         // Gerando a matriz
-        div = create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
-
-        return div;
+        return create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
+    }
+    else{
+        printf("\033[0;31mIndex Error: Both matrices should have the same dimensions. \033[96mReturning -9999 Matrix to represent error\033[0m\n");
+        return full_matrix(2, 2, -9999);
     }
 }
 
 Matrix mul(Matrix matrix_1, Matrix matrix_2){
     // Verificando se matrizes têm as mesmas dimensões
     if(matrix_1.n_rows == matrix_2.n_rows && matrix_1.n_cols == matrix_2.n_cols){
-        // Inicialização da matriz
-        Matrix multiplication;
         // Criando a lista de dados
         int *elements;
         int n_elem = matrix_1.n_rows * matrix_1.n_cols;
@@ -275,9 +290,12 @@ Matrix mul(Matrix matrix_1, Matrix matrix_2){
         }
 
         // Gerando a matriz
-        multiplication = create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
+        return create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
 
-        return multiplication;
+    }
+    else{
+        printf("\033[0;31mIndex Error: Both matrices should have the same dimensions. \033[96mReturning -9999 Matrix to represent error\033[0m\n");
+        return full_matrix(2, 2, -9999);
     }
 }
 
@@ -373,27 +391,3 @@ int argmax(Matrix matrix){
     return major_index;
 }
 
-Matrix slice(Matrix matrix, int rs, int re, int cs, int ce){
-
-    int row_size, col_size, new_n_elem, *new_data;
-
-    row_size = re - rs;
-
-    col_size = ce - cs;
-
-    new_n_elem = row_size * col_size;
-
-    new_data = malloc(new_n_elem* sizeof(int));
-
-    int new_m_index = 0;
-    int r, c;
-    for (r = rs; r < re; r++){
-        for (c = cs; c < ce; c++ ){
-            new_data[new_m_index++] = matrix.data[r * matrix.n_cols + c];
-            }
-        }
-    
-
-    return create_matrix(new_data, row_size, col_size);
-
-}
