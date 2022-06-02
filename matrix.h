@@ -26,7 +26,7 @@ Matrix tile_matrix      (Matrix matrix, int reps);
 //Manipulação de dimensões
 Matrix transpose        (Matrix matrix);
 Matrix reshape          (Matrix matrix, int new_n_rows, int new_n_cols);
-Matrix slice            (Matrix matrix, int rs, int re, int cs, int ce);
+Matrix slice            (Matrix a_matrix, int rs, int re, int cs, int ce);
 
 //Operações aritméticas
 Matrix add              (Matrix matrix_1, Matrix matrix_2);
