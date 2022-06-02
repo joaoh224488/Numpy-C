@@ -162,8 +162,9 @@ Matrix reshape(Matrix matrix, int new_n_rows, int new_n_cols){
     }
 }
 
-Matrix slice(Matrix matrix, int rs, int re, int cs, int ce){
-    if (rs >= 0 && re <= matrix.n_rows && cs >= 0 && ce <= matrix.n_cols)
+
+Matrix slice(Matrix a_matrix, int rs, int re, int cs, int ce){
+    if (rs >= 0 && re <= a_matrix.n_rows && cs >= 0 && ce <= a_matrix.n_cols)
     {
         int row_size, col_size, new_n_elem, *new_data;
 
@@ -179,7 +180,7 @@ Matrix slice(Matrix matrix, int rs, int re, int cs, int ce){
         int r, c; // Variaveis para controlar a linha e coluna lida a cada iteracao
         for (r = rs; r < re; r++){
             for (c = cs; c < ce; c++ ){
-                new_data[new_m_index++] = matrix.data[r * matrix.n_cols + c];
+                new_data[new_m_index++] = a_matrix.data[r * a_matrix.n_cols + c];
                 }
             }
         
@@ -187,7 +188,7 @@ Matrix slice(Matrix matrix, int rs, int re, int cs, int ce){
         }
         else{
         printf("\033[0;31mIndex Error: index out of range. \033[96mReturning original Matrix\033[0m\n");
-        return matrix;
+        return a_matrix;
     }
 
 }
