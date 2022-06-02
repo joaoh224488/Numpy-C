@@ -37,6 +37,7 @@ Matrix zeros_matrix(int n_rows, int n_cols){
 Matrix full_matrix(int n_rows, int n_cols, int value){
     // Inicialização da matriz
     Matrix full_mat;
+    
 
     // Criando a lista de dados
     int *list_values;
@@ -310,15 +311,17 @@ void put_element(Matrix matrix, int ri, int ci, int elem){
 
 void print_matrix(Matrix matrix){
 
-    for (int i = matrix.offset; i < N_ELEM; i++){
+        int index = 0;
+        for (int i = 0; i < matrix.n_rows; i++) {
 
-        if (i % matrix.stride_rows == 0 && i != matrix.offset)
             putchar('\n');
 
-        printf("%d ", matrix.data[i]);
+            for (int j = 0 ;j< matrix.n_cols ; j++) {
+                printf("%d\t", matrix.data[index++]);
     }
-    putchar('\n');
-    putchar('\n');
+    }
+    printf("\n\n");
+
 }
 
 // FUNÇÕES DE AGREGAÇÃO
@@ -368,4 +371,29 @@ int argmax(Matrix matrix){
     }
 
     return major_index;
+}
+
+Matrix slice(Matrix matrix, int rs, int re, int cs, int ce){
+
+    int row_size, col_size, new_n_elem, *new_data;
+
+    row_size = re - rs;
+
+    col_size = ce - cs;
+
+    new_n_elem = row_size * col_size;
+
+    new_data = malloc(new_n_elem* sizeof(int));
+
+    int new_m_index = 0;
+    int r, c;
+    for (r = rs; r < re; r++){
+        for (c = cs; c < ce; c++ ){
+            new_data[new_m_index++] = matrix.data[r * matrix.n_cols + c];
+            }
+        }
+    
+
+    return create_matrix(new_data, row_size, col_size);
+
 }

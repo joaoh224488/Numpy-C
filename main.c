@@ -66,5 +66,15 @@ int main(){
     //para corrigir
     print_matrix(transpose(m14));
 
+    int data[] = {1, 2, 3, 4};
+
+    Matrix ex = create_matrix(data, 2, 2);
+
+    print_matrix(ex);
+
+    Matrix sliced = slice(m13, 1, 3, 0, 4);
+
+    print_matrix(sliced);
+
     return 0;
 }
