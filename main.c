@@ -68,7 +68,7 @@ int main(){
     // Fazendo um slice da matriz shaped
     printf("Slice da matriz:    \n");
 
-    Matrix cut = slice(shaped, 0, 2, 1, 3);
+    Matrix cut = slice(shaped, 0 , 2, 1, 3);
     print_matrix(cut);
 
     printf("\033[96m-----------------------------------------------------\033[0m\n\n");
@@ -77,9 +77,9 @@ int main(){
     printf("\033[96mFunções de agregação:    \033[0m\n\n");
 
     printf("O elemento mínimo da matriz gerada pelo slice é:    %d\n", min(cut));
-    printf("O índice na lista geradora desse elemento é:    %d\n", argmin(cut));
+    printf("O índice, na lista geradora, desse elemento é:    %d\n", argmin(cut));
     printf("O elemento máximo da matriz gerada pelo slice é:    %d\n", max(cut));
-    printf("O índice desse na lista geradora elemento é:    %d\n\n", argmax(cut));
+    printf("O índice, na lista geradora, desse elemento é:    %d\n\n", argmax(cut));
 
     printf("\033[96m-----------------------------------------------------\033[0m\n\n");
 

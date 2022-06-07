@@ -73,10 +73,8 @@ Matrix i_matrix (int n){
 /*
 2x3     2 3 4           [2,3,4,5,6,7]               => {[2,3,4],[5,6,7]}
         5 6 7
-
 2x6     2 3 4 2 3 4     [2,3,4,2,3,4,5,6,7,5,6,7]   => {[2,3,4],[2,3,4],[5,6,7],[5,6,7]}
         5 6 7 5 6 7
-
 */
 Matrix tile_matrix(Matrix matrix, int reps){
     
@@ -370,12 +368,16 @@ int max(Matrix matrix){
 }
 
 int argmin(Matrix matrix){
-    int minor_index = 0;
-    int minor = min(matrix);
+    int minor = matrix.data[matrix.offset];
+    int read_index = 0, minor_index = 0;
 
-    for(int i = 0; i < N_ELEM; i++){
-        if(matrix.data[i] == minor){
-            minor_index = i;
+    for(int i = 0; i < matrix.n_rows; i++){
+        for (int j = 0; j < matrix.n_cols; j++){
+            read_index = i * matrix.stride_rows + j * matrix.stride_cols + matrix.offset;
+             if(matrix.data[read_index] < minor){
+                minor = matrix.data[read_index];
+                minor_index = read_index;
+        }
         }
     }
 
@@ -383,15 +385,17 @@ int argmin(Matrix matrix){
 }
 
 int argmax(Matrix matrix){
-    int major_index = 0;
-    int major = max(matrix);
+    int major = matrix.data[matrix.offset];
+    int read_index = 0, major_index = 0;
 
-    for(int i = 0; i < N_ELEM; i++){
-        if(matrix.data[i] == major){
-            major_index = i;
+    for(int i = 0; i < matrix.n_rows; i++){
+        for (int j = 0; j < matrix.n_cols; j++){
+            read_index = i * matrix.stride_rows + j * matrix.stride_cols + matrix.offset;
+             if(matrix.data[read_index] > major){
+                major = matrix.data[read_index];
+                major_index = read_index;
+        }
         }
     }
-
     return major_index;
 }
-
