@@ -79,7 +79,7 @@ Matrix i_matrix (int n){
 
 */
 Matrix tile_matrix(Matrix matrix, int reps){
-
+    
     // Criando a lista de dados
     int *elements;
     elements = malloc(sizeof(int) * N_ELEM * reps);
@@ -104,40 +104,24 @@ Matrix tile_matrix(Matrix matrix, int reps){
     }
 
     // Gerando a matriz
-    return create_matrix(elements, matrix.n_rows, matrix.n_cols*reps);
+    return create_matrix(elements, matrix.n_rows, matrix.n_cols * reps);
 
+    // Gerando a matriz
+    return create_matrix(elements, matrix.n_rows, matrix.n_cols * reps);
+    
 }
 
 // MANIPULAÇÃO DE DIMENSÕES
-Matrix transpose(Matrix matrix){
-    // Criando a lista de dados
-    int *elements;
-    elements = malloc(sizeof(int) * N_ELEM);
+Matrix transpose(Matrix matrix){ // Corrigida
+    Matrix t = matrix;
 
-    elements[0] = matrix.data[0];
+    t.stride_rows = matrix.stride_cols;
+    t.stride_cols = matrix.stride_rows;
 
-    int j = 0, pos = 0, calc = 0;
-    int col = 1, row = 1;
-
-    if(matrix.n_rows == matrix.n_cols){
-        calc = matrix.n_rows;
-    }
-    else{
-        calc = matrix.n_cols;
-    }
-
-    for(int i = 1; i < N_ELEM; i++){
-        pos = row*calc;
-        elements[i] = matrix.data[j+col*pos];
-        row++;
-        if(row == matrix.n_rows){
-            row = 0;
-            j+=1;
-        }
-    }
-
-    // Gerando a matriz
-    return create_matrix(elements, matrix.n_cols, matrix.n_rows);
+    t.n_rows = matrix.n_cols;
+    t.n_cols = matrix.n_rows;
+    
+    return t;
 
 }
 
@@ -163,28 +147,16 @@ Matrix reshape(Matrix matrix, int new_n_rows, int new_n_cols){
 }
 
 
-Matrix slice(Matrix a_matrix, int rs, int re, int cs, int ce){
+Matrix slice(Matrix a_matrix, int rs, int re, int cs, int ce){ // Corrigida
     if (rs >= 0 && re <= a_matrix.n_rows && cs >= 0 && ce <= a_matrix.n_cols)
     {
-        int row_size, col_size, new_n_elem, *new_data;
+        Matrix slc = a_matrix;
 
-        row_size = re - rs;
+        slc.n_rows = re - rs;
+        slc.n_cols = ce - cs;
+        slc.offset = rs * a_matrix.stride_rows + cs* a_matrix.stride_cols + a_matrix.offset;
 
-        col_size = ce - cs;
-
-        new_n_elem = row_size * col_size;
-
-        new_data = malloc(new_n_elem* sizeof(int));
-
-        int new_m_index = 0;
-        int r, c; // Variaveis para controlar a linha e coluna lida a cada iteracao
-        for (r = rs; r < re; r++){
-            for (c = cs; c < ce; c++ ){
-                new_data[new_m_index++] = a_matrix.data[r * a_matrix.n_cols + c];
-                }
-            }
-        
-        return create_matrix(new_data, row_size, col_size);
+        return slc;
         }
         else{
         printf("\033[0;31mIndex Error: index out of range. \033[96mReturning original Matrix\033[0m\n");
@@ -200,14 +172,20 @@ Matrix add(Matrix matrix_1, Matrix matrix_2){
         // Criando a lista de dados
         int *elements;
         int n_elem = matrix_1.n_rows * matrix_1.n_cols;
+
+        int read_m1 = 0, read_m2 = 0, index = 0;
+
         elements = malloc(sizeof(int) * n_elem);
         // Preenchendo o array unidimensional de saída com base
         // na soma dos elementos de mesmo índice pertencentes à cada matriz
-        for(int i = 0; i < matrix_1.n_rows * matrix_1.n_cols; i++){
-            elements[i] = matrix_1.data[i] + matrix_2.data[i];
+        for (int i = 0; i < matrix_1.n_rows; i++){
+            for (int j = 0; j < matrix_1.n_cols; j++){
+                read_m1 = i * matrix_1.stride_rows + j * matrix_1.stride_cols + matrix_1.offset;
+                read_m2 = i * matrix_2.stride_rows + j * matrix_2.stride_cols + matrix_2.offset;
+                index = i * matrix_1.n_cols + j;
+                elements[index] = matrix_1.data[read_m1] + matrix_2.data[read_m2];
+            }
         }
-
-        // Gerando a matriz
         return create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
     }
     else{
@@ -223,13 +201,18 @@ Matrix sub(Matrix matrix_1, Matrix matrix_2){
         int *elements;
         int n_elem = matrix_1.n_rows * matrix_1.n_cols;
         elements = malloc(sizeof(int) * n_elem);
+
+        int read_m1 = 0, read_m2 = 0, index = 0; 
         // Preenchendo o array unidimensional de saída com base
         // na subtração dos elementos de mesmo índice pertencentes à cada matriz
-        for(int i = 0; i < matrix_1.n_rows * matrix_1.n_cols; i++){
-            elements[i] = matrix_1.data[i] - matrix_2.data[i];
+        for (int i = 0; i < matrix_1.n_rows; i++){
+            for (int j = 0; j < matrix_1.n_cols; j++){
+                read_m1 = i * matrix_1.stride_rows + j * matrix_1.stride_cols + matrix_1.offset;
+                read_m2 = i * matrix_2.stride_rows + j * matrix_2.stride_cols + matrix_2.offset;
+                index = i * matrix_1.n_cols + j;
+                elements[index] = matrix_1.data[read_m1] - matrix_2.data[read_m2];
+            }
         }
-
-        // Gerando a matriz
         return create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
 
     }
@@ -246,31 +229,38 @@ Matrix division(Matrix matrix_1, Matrix matrix_2){
         int *elements;
         int n_elem = matrix_1.n_rows * matrix_1.n_cols;
         elements = malloc(sizeof(int) * n_elem);
+        
+        int read_m1 = 0, read_m2 = 0, index = 0; 
         // Preenchendo o array unidimensional de saída com base
         // na divisão dos elementos de mesmo índice pertencentes à cada matriz
-        for(int i = 0; i < matrix_1.n_rows * matrix_1.n_cols; i++){
-/*
-    Casos especiais da divisão: 
+        for (int i = 0; i < matrix_1.n_rows; i++){
+            for (int j = 0; j < matrix_1.n_cols; j++){
+                read_m1 = i * matrix_1.stride_rows + j * matrix_1.stride_cols + matrix_1.offset;
+                read_m2 = i * matrix_2.stride_rows + j * matrix_2.stride_cols + matrix_2.offset;
+                index = i * matrix_1.n_cols + j;
+        /*
+        Casos especiais da divisão: 
         1º - denominador 0, resultado 'inf' (usaremos -666 representar),
         2º - numerador e denominador 0, resultado 'nan' (usaremos -777 para representar)
-*/
-            if(matrix_2.data[i] == 0){
-                if(matrix_1.data[i] == 0){
-                    elements[i] = -777;
+        */
+                if(matrix_2.data[read_m2] == 0){
+                    if(matrix_1.data[read_m1] == 0){
+                        elements[index] = -777;
+                        printf("\033[0;33mwarning:   -777 at position [%d, %d] of the matrix symbolizes the result 'nan' found by dividing 0 by 0\033[0m\n", i, j);
                 }
-                else{
-                    elements[i] = -666;
+                    else{
+                        elements[index] = -666;
+                        printf("\033[0;33mwarning:   -666 at position [%d, %d] of the matrix symbolizes the result 'inf' found by dividing a number by 0\033[0m\n", i, j);
                 }
             }
             else{
-                elements[i] = matrix_1.data[i] / matrix_2.data[i];
+                elements[index] = matrix_1.data[read_m1] / matrix_2.data[read_m2];
             }
-            
+                
         }
-
-        // Gerando a matriz
-        return create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
     }
+        return create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
+    }    
     else{
         printf("\033[0;31mIndex Error: Both matrices should have the same dimensions. \033[96mReturning -9999 Matrix to represent error\033[0m\n");
         return full_matrix(2, 2, -9999);
@@ -284,10 +274,17 @@ Matrix mul(Matrix matrix_1, Matrix matrix_2){
         int *elements;
         int n_elem = matrix_1.n_rows * matrix_1.n_cols;
         elements = malloc(sizeof(int) * n_elem);
+
+        int read_m1 = 0, read_m2 = 0, index = 0;
         // Preenchendo o array unidimensional de saída com base
         // na multiplicação dos elementos de mesmo índice pertencentes à cada matriz
-        for(int i = 0; i < matrix_1.n_rows * matrix_1.n_cols; i++){
-            elements[i] = matrix_1.data[i] * matrix_2.data[i];
+        for (int i = 0; i < matrix_1.n_rows; i++){
+            for (int j = 0; j < matrix_1.n_cols; j++){
+                read_m1 = i * matrix_1.stride_rows + j * matrix_1.stride_cols + matrix_1.offset;
+                read_m2 = i * matrix_2.stride_rows + j * matrix_2.stride_cols + matrix_2.offset;
+                index = i * matrix_1.n_cols + j;
+                elements[index] = matrix_1.data[read_m1] * matrix_2.data[read_m2];
+            }
         }
 
         // Gerando a matriz
@@ -301,9 +298,10 @@ Matrix mul(Matrix matrix_1, Matrix matrix_2){
 }
 
 // ACESSANDO ELEMENTOS
-int get_element(Matrix matrix, int ri, int ci){
+int get_element(Matrix matrix, int ri, int ci){ // Corrigida
     if(ri < matrix.n_rows && ci < matrix.n_cols){
-        int element = matrix.data[(ri * matrix.n_cols + ci)];
+        int read_index = ri * matrix.stride_rows + ci *matrix.stride_cols + matrix.offset;
+        int element = matrix.data[read_index];
 
         return element;
     }
@@ -316,9 +314,10 @@ int get_element(Matrix matrix, int ri, int ci){
     }
 }
 
-void put_element(Matrix matrix, int ri, int ci, int elem){
+void put_element(Matrix matrix, int ri, int ci, int elem){ // Corrigida
     if(ri < matrix.n_rows && ci < matrix.n_cols){
-        matrix.data[(ri * matrix.n_cols + ci)] = elem;
+        int read_index = ri * matrix.stride_rows + ci * matrix.stride_cols + matrix.offset;
+        matrix.data[read_index] = elem;
     }
 
     else{
@@ -328,28 +327,29 @@ void put_element(Matrix matrix, int ri, int ci, int elem){
     }
 }
 
-void print_matrix(Matrix matrix){
-
-        int index = 0;
-        for (int i = 0; i < matrix.n_rows; i++) {
-
-            putchar('\n');
-
-            for (int j = 0 ;j< matrix.n_cols ; j++) {
-                printf("%d\t", matrix.data[index++]);
+void print_matrix(Matrix matrix){ // Corrigida
+    int read_index = 0;
+    for (int i = 0; i < matrix.n_rows; i++) {
+        putchar('\n');
+        for (int j = 0; j< matrix.n_cols; j++){
+            read_index = i * matrix.stride_rows + j * matrix.stride_cols + matrix.offset;
+            printf("%d\t", matrix.data[read_index]);
     }
     }
     printf("\n\n");
-
 }
 
 // FUNÇÕES DE AGREGAÇÃO
 int min(Matrix matrix){
-    int minor = matrix.data[0];
+    int minor = matrix.data[matrix.offset];
+    int read_index = 0;
 
-    for(int i = 1; i < N_ELEM; i++){
-        if(matrix.data[i] < minor){
-            minor = matrix.data[i];
+    for(int i = 0; i < matrix.n_rows; i++){
+        for (int j = 0; j < matrix.n_cols; j++){
+            read_index = i * matrix.stride_rows + j * matrix.stride_cols + matrix.offset;
+             if(matrix.data[read_index] < minor){
+                minor = matrix.data[read_index];
+        }
         }
     }
 
@@ -357,22 +357,26 @@ int min(Matrix matrix){
 }
 
 int max(Matrix matrix){
-    int major = matrix.data[0];
+    int major = matrix.data[matrix.offset];
+    int read_index = 0;
 
-    for(int i = 1; i < N_ELEM; i++){
-        if(matrix.data[i] > major){
-            major = matrix.data[i];
+    for(int i = 0; i < matrix.n_rows; i++){
+        for (int j = 0; j < matrix.n_cols; j++){
+            read_index = i * matrix.stride_rows + j * matrix.stride_cols + matrix.offset;
+             if(matrix.data[read_index] > major){
+                major = matrix.data[read_index];
+        }
         }
     }
-
     return major;
 }
 
 int argmin(Matrix matrix){
     int minor_index = 0;
+    int minor = min(matrix);
 
     for(int i = 0; i < N_ELEM; i++){
-        if(matrix.data[i] == min(matrix)){
+        if(matrix.data[i] == minor){
             minor_index = i;
         }
     }
@@ -382,9 +386,10 @@ int argmin(Matrix matrix){
 
 int argmax(Matrix matrix){
     int major_index = 0;
+    int major = max(matrix);
 
     for(int i = 0; i < N_ELEM; i++){
-        if(matrix.data[i] == max(matrix)){
+        if(matrix.data[i] == major){
             major_index = i;
         }
     }

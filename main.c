@@ -112,6 +112,37 @@ int main(){
     print_matrix(div);  
     printf("\033[96m-----------------------------------------------------\033[0m\n\n");
 
+    printf("TESTES DE VERDADE: \n");
+
+    int n[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+    Matrix thing = create_matrix(n, 3, 3);
+
+    print_matrix(thing);
+
+    Matrix slc = slice(thing, 1, 3, 1, 3);
+
+    print_matrix(slc);
+
+    printf("Slice\n");
+    print_matrix(slc);
+
+    printf("OLHA ESSE PROBLEMA AQUI Ó:\n");
+    printf("Tile\n");
+
+    print_matrix(tile_matrix(slc, 3));
+
+    // Deveria estar repetindo assim:
+
+    int para_max[] = {5, 6, 8, 9};
+
+    printf("Deveria ser assim: \n");
+
+    print_matrix(tile_matrix(create_matrix(para_max, 2, 2), 3));
+
+    printf("Fazendo tile do slice\n");
+
+
     return 0;
 
 }
