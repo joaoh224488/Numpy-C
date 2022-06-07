@@ -84,28 +84,26 @@ Matrix tile_matrix(Matrix matrix, int reps){
     int *elements;
     elements = malloc(sizeof(int) * N_ELEM * reps);
 
-    // Variáveis de controle para reordenação do array unidimensional de saída
-    int col = 0;
-    int j = 0;
-    int stride = 0;
+    // Variáveis de controle para ordenação do array unidimensional de saída
+    int count_col = 0, read_m = 0, row = 0, col = 0;
+ 
     for(int i = 0; i < N_ELEM * reps; i++){
 
-        elements[i] = matrix.data[stride+j];
-        j++;
-        col++;
-        if(j == matrix.n_cols){
-            j=0;
+        read_m = row * matrix.stride_rows + col * matrix.stride_cols + matrix.offset;
+        elements[i] = matrix.data[read_m];
 
-            if(col == matrix.n_cols*reps){
-                col = 0;
-                stride += matrix.n_cols;
+        col++;
+        count_col++;
+
+        if(col == matrix.n_cols){
+            col = 0;
+
+            if(count_col == matrix.n_cols * reps){
+                count_col = 0;
+                row++;
             }
         }
     }
-
-    // Gerando a matriz
-    return create_matrix(elements, matrix.n_rows, matrix.n_cols * reps);
-
     // Gerando a matriz
     return create_matrix(elements, matrix.n_rows, matrix.n_cols * reps);
     
