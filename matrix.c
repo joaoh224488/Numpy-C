@@ -41,16 +41,15 @@ Matrix full_matrix(int n_rows, int n_cols, int value){
     }
 
     // Gerando a matriz
-
     return create_matrix(list_values, n_rows, n_cols);
 }
 
 Matrix zeros_matrix(int n_rows, int n_cols){
-
+    // Gerando a matriz de zeros
     return full_matrix(n_rows, n_cols, 0);
 } 
 
-Matrix i_matrix (int n){
+Matrix i_matrix(int n){
 
     // Criando a lista de dados
     int *list_values;
@@ -67,15 +66,10 @@ Matrix i_matrix (int n){
         }
     }
 
-    // Gerando a matriz
+    // Gerando a matriz identidade
     return create_matrix(list_values, n, n);
 }
-/*
-2x3     2 3 4           [2,3,4,5,6,7]               => {[2,3,4],[5,6,7]}
-        5 6 7
-2x6     2 3 4 2 3 4     [2,3,4,2,3,4,5,6,7,5,6,7]   => {[2,3,4],[2,3,4],[5,6,7],[5,6,7]}
-        5 6 7 5 6 7
-*/
+
 Matrix tile_matrix(Matrix matrix, int reps){
     
     // Criando a lista de dados
@@ -102,23 +96,23 @@ Matrix tile_matrix(Matrix matrix, int reps){
             }
         }
     }
+
     // Gerando a matriz
-    return create_matrix(elements, matrix.n_rows, matrix.n_cols * reps);
-    
+    return create_matrix(elements, matrix.n_rows, matrix.n_cols * reps); 
 }
 
 // MANIPULAÇÃO DE DIMENSÕES
-Matrix transpose(Matrix matrix){ // Corrigida
-    Matrix t = matrix;
+Matrix transpose(Matrix matrix){
+    Matrix trnsp = matrix;
 
-    t.stride_rows = matrix.stride_cols;
-    t.stride_cols = matrix.stride_rows;
+    trnsp.stride_rows = matrix.stride_cols;
+    trnsp.stride_cols = matrix.stride_rows;
 
-    t.n_rows = matrix.n_cols;
-    t.n_cols = matrix.n_rows;
+    trnsp.n_rows = matrix.n_cols;
+    trnsp.n_cols = matrix.n_rows;
     
-    return t;
-
+    // Gerando a matriz transposta
+    return trnsp;
 }
 
 Matrix reshape(Matrix matrix, int new_n_rows, int new_n_cols){
@@ -143,22 +137,21 @@ Matrix reshape(Matrix matrix, int new_n_rows, int new_n_cols){
 }
 
 
-Matrix slice(Matrix a_matrix, int rs, int re, int cs, int ce){ // Corrigida
-    if (rs >= 0 && re <= a_matrix.n_rows && cs >= 0 && ce <= a_matrix.n_cols)
-    {
+Matrix slice(Matrix a_matrix, int rs, int re, int cs, int ce){
+    if (rs >= 0 && re <= a_matrix.n_rows && cs >= 0 && ce <= a_matrix.n_cols){
         Matrix slc = a_matrix;
 
         slc.n_rows = re - rs;
         slc.n_cols = ce - cs;
-        slc.offset = rs * a_matrix.stride_rows + cs* a_matrix.stride_cols + a_matrix.offset;
-
+        slc.offset = rs * a_matrix.stride_rows + cs * a_matrix.stride_cols + a_matrix.offset;
+        
+        // Gerando a matriz fatiada
         return slc;
-        }
-        else{
-        printf("\033[0;31mIndex Error: index out of range. \033[96mReturning original Matrix\033[0m\n");
+    }
+    else{
+        printf("\033[0;31mIndex Error: index out of range. \033[96mReturning original matrix\033[0m\n");
         return a_matrix;
     }
-
 }
 
 // OPERAÇÕES ARITMÉTICAS
@@ -185,7 +178,7 @@ Matrix add(Matrix matrix_1, Matrix matrix_2){
         return create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
     }
     else{
-        printf("\033[0;31mIndex Error: Both matrices should have the same dimensions. \033[96mReturning -9999 Matrix to represent error\033[0m\n");
+        printf("\033[0;31mIndex Error: Both matrices should have the same dimensions. \033[96mReturning -9999 matrix to represent error\033[0m\n");
         return full_matrix(2, 2, -9999);
     }
 }
@@ -212,8 +205,9 @@ Matrix sub(Matrix matrix_1, Matrix matrix_2){
         return create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
 
     }
+    
     else{
-        printf("\033[0;31mIndex Error: Both matrices should have the same dimensions. \033[96mReturning -9999 Matrix to represent error\033[0m\n");
+        printf("\033[0;31mIndex Error: Both matrices should have the same dimensions. \033[96mReturning -9999 matrix to represent error\033[0m\n");
         return full_matrix(2, 2, -9999);
     }
 }
@@ -242,13 +236,14 @@ Matrix division(Matrix matrix_1, Matrix matrix_2){
                 if(matrix_2.data[read_m2] == 0){
                     if(matrix_1.data[read_m1] == 0){
                         elements[index] = -777;
-                        printf("\033[0;33mwarning:   -777 at position [%d, %d] of the matrix symbolizes the result 'nan' found by dividing 0 by 0\033[0m\n", i, j);
+                        printf("\033[0;33mWarning:   -777 at position [%d, %d] of the matrix symbolizes the result 'nan' found by dividing 0 by 0\033[0m\n", i, j);
                 }
                     else{
                         elements[index] = -666;
-                        printf("\033[0;33mwarning:   -666 at position [%d, %d] of the matrix symbolizes the result 'inf' found by dividing a number by 0\033[0m\n", i, j);
+                        printf("\033[0;33mWarning:   -666 at position [%d, %d] of the matrix symbolizes the result 'inf' found by dividing a number by 0\033[0m\n", i, j);
                 }
             }
+
             else{
                 elements[index] = matrix_1.data[read_m1] / matrix_2.data[read_m2];
             }
@@ -256,9 +251,10 @@ Matrix division(Matrix matrix_1, Matrix matrix_2){
         }
     }
         return create_matrix(elements, matrix_1.n_rows, matrix_1.n_cols);
-    }    
+    }
+
     else{
-        printf("\033[0;31mIndex Error: Both matrices should have the same dimensions. \033[96mReturning -9999 Matrix to represent error\033[0m\n");
+        printf("\033[0;31mIndex Error: Both matrices should have the same dimensions. \033[96mReturning -9999 matrix to represent error\033[0m\n");
         return full_matrix(2, 2, -9999);
     }
 }
@@ -288,13 +284,13 @@ Matrix mul(Matrix matrix_1, Matrix matrix_2){
 
     }
     else{
-        printf("\033[0;31mIndex Error: Both matrices should have the same dimensions. \033[96mReturning -9999 Matrix to represent error\033[0m\n");
+        printf("\033[0;31mIndex Error: Both matrices should have the same dimensions. \033[96mReturning -9999 matrix to represent error\033[0m\n");
         return full_matrix(2, 2, -9999);
     }
 }
 
 // ACESSANDO ELEMENTOS
-int get_element(Matrix matrix, int ri, int ci){ // Corrigida
+int get_element(Matrix matrix, int ri, int ci){
     if(ri < matrix.n_rows && ci < matrix.n_cols){
         int read_index = ri * matrix.stride_rows + ci *matrix.stride_cols + matrix.offset;
         int element = matrix.data[read_index];
@@ -310,7 +306,7 @@ int get_element(Matrix matrix, int ri, int ci){ // Corrigida
     }
 }
 
-void put_element(Matrix matrix, int ri, int ci, int elem){ // Corrigida
+void put_element(Matrix matrix, int ri, int ci, int elem){
     if(ri < matrix.n_rows && ci < matrix.n_cols){
         int read_index = ri * matrix.stride_rows + ci * matrix.stride_cols + matrix.offset;
         matrix.data[read_index] = elem;
@@ -323,14 +319,14 @@ void put_element(Matrix matrix, int ri, int ci, int elem){ // Corrigida
     }
 }
 
-void print_matrix(Matrix matrix){ // Corrigida
+void print_matrix(Matrix matrix){ 
     int read_index = 0;
-    for (int i = 0; i < matrix.n_rows; i++) {
+    for (int i = 0; i < matrix.n_rows; i++){
         putchar('\n');
         for (int j = 0; j< matrix.n_cols; j++){
             read_index = i * matrix.stride_rows + j * matrix.stride_cols + matrix.offset;
             printf("%d\t", matrix.data[read_index]);
-    }
+        }
     }
     printf("\n\n");
 }
@@ -343,9 +339,9 @@ int min(Matrix matrix){
     for(int i = 0; i < matrix.n_rows; i++){
         for (int j = 0; j < matrix.n_cols; j++){
             read_index = i * matrix.stride_rows + j * matrix.stride_cols + matrix.offset;
-             if(matrix.data[read_index] < minor){
+            if(matrix.data[read_index] < minor){
                 minor = matrix.data[read_index];
-        }
+            }
         }
     }
 
@@ -359,43 +355,43 @@ int max(Matrix matrix){
     for(int i = 0; i < matrix.n_rows; i++){
         for (int j = 0; j < matrix.n_cols; j++){
             read_index = i * matrix.stride_rows + j * matrix.stride_cols + matrix.offset;
-             if(matrix.data[read_index] > major){
+            if(matrix.data[read_index] > major){
                 major = matrix.data[read_index];
-        }
+            }
         }
     }
+
     return major;
 }
 
 int argmin(Matrix matrix){
-    int minor = matrix.data[matrix.offset];
-    int read_index = 0, minor_index = 0;
+    int minor = min(matrix);
+    int read_index = 0, min_index = 0;
 
     for(int i = 0; i < matrix.n_rows; i++){
         for (int j = 0; j < matrix.n_cols; j++){
             read_index = i * matrix.stride_rows + j * matrix.stride_cols + matrix.offset;
-             if(matrix.data[read_index] < minor){
-                minor = matrix.data[read_index];
-                minor_index = read_index;
-        }
+            if(matrix.data[read_index] == minor){
+                min_index = i * matrix.n_cols + j;
+            }
         }
     }
 
-    return minor_index;
+    return min_index;
 }
 
 int argmax(Matrix matrix){
-    int major = matrix.data[matrix.offset];
-    int read_index = 0, major_index = 0;
+    int major = max(matrix);
+    int read_index = 0, max_index = 0;
 
     for(int i = 0; i < matrix.n_rows; i++){
         for (int j = 0; j < matrix.n_cols; j++){
             read_index = i * matrix.stride_rows + j * matrix.stride_cols + matrix.offset;
-             if(matrix.data[read_index] > major){
-                major = matrix.data[read_index];
-                major_index = read_index;
-        }
+            if(matrix.data[read_index] == major){
+                max_index = i * matrix.n_cols + j;
+            }
         }
     }
-    return major_index;
+
+    return max_index;
 }
